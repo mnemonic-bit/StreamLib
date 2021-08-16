@@ -43,7 +43,7 @@ namespace StreamLib
                 intervalLength,
                 bytesPerInterval,
                 _baseStream.Read,
-                (loadedChinkSize, bytesPerInterval) => loadedChinkSize < bytesPerInterval);
+                (loadedChunkSize, bytesPerInterval) => loadedChunkSize < bytesPerInterval);
 
             _throttledWriteOperation = new ThrottledOperation(
                 intervalLength,
@@ -53,7 +53,7 @@ namespace StreamLib
                     _baseStream.Write(buffer, offset, count);
                     return bytesPerInterval;
                 },
-                (loadedChinkSize, bytesPerInterval) => false);
+                (loadedChunkSize, bytesPerInterval) => false);
         }
 
         public override bool CanRead => _baseStream.CanRead;
