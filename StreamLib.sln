@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamLib", "ThrottledStream\StreamLib.csproj", "{7024118F-5903-4078-B28F-75BB1D6AABA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamLib", "StreamLib\StreamLib.csproj", "{7024118F-5903-4078-B28F-75BB1D6AABA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamLibTests", "ThrottledStreamTests\StreamLibTests.csproj", "{402AE459-6DF3-40D3-9B33-22BB1C0A7E72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamLibTests", "StreamLibTests\StreamLibTests.csproj", "{402AE459-6DF3-40D3-9B33-22BB1C0A7E72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
