@@ -27,7 +27,7 @@ namespace StreamLib.Implementation
             _exitConditionFn = exitConditionFn;
         }
 
-        public int Throttle(byte[] buffer, int offset, int count)
+        internal int Throttle(byte[] buffer, int offset, int count)
         {
             int totalBytes = 0;
 
