@@ -27,7 +27,7 @@ namespace StreamLib.Implementation
             _exitConditionFn = exitConditionFn;
         }
 
-        public int Throttle(byte[] buffer, int offset, int count)
+        internal int Throttle(byte[] buffer, int offset, int count)
         {
             int totalBytes = 0;
 
@@ -50,7 +50,7 @@ namespace StreamLib.Implementation
 
         private int Throttle()
         {
-            long millisecondsElapsedSinceLastRead = _timer.GetMilliseconds();
+            long millisecondsElapsedSinceLastRead = _timer.ElapsedMilliseconds;
 
             if (millisecondsElapsedSinceLastRead > _intervalLength)
             {
