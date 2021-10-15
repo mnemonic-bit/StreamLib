@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using StreamLib;
 using System.Text;
-using StreamLib;
-using StreamLib.Implementation;
 using Xunit;
 
 namespace StreamLibTests
