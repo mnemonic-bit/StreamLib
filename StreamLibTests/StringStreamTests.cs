@@ -88,14 +88,14 @@ namespace StreamLibTests
         }
 
         [Fact]
-        public void Read_ShouldReturnOnlyOneCharacter_WhenBufferDoesNotFitTwo()
+        public void Read_ShouldReturnAllBytes_WhenCountIsMuchBiggerThanByteRepresentation()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
             Encoding encoding = Encoding.Unicode;
             int lengthInBytes = encoding.GetByteCount(text);
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
-            int bufferSize = 3;
+            int bufferSize = 100;
 
             StringStream stringStream = new StringStream(text, encoding);
 
@@ -105,9 +105,8 @@ namespace StreamLibTests
 
             // Assert
             Assert.Equal(lengthInBytes, readByteCount);
-            Assert.Equal(text, encoding.GetString(buffer));
+            Assert.Equal(text, encoding.GetString(buffer, 0, readByteCount));
         }
-
 
     }
 }

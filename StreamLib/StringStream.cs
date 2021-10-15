@@ -84,10 +84,10 @@ namespace StreamLib
             int charPosition = _currentCharPosition;
             int bytePosition = 0;
 
-            while (_currentCharPosition < _source.Length && bytePosition < numberOfBytes)
+            while (charPosition < _source.Length && bytePosition < numberOfBytes)
             {
                 int remainingBytesCount = numberOfBytes - bytePosition;
-                int additionalCharsCount = CalculateCharsToRead(remainingBytesCount);
+                int additionalCharsCount = Math.Min(CalculateCharsToRead(remainingBytesCount), _source.Length - charPosition);
 
                 int nextByteCount = _encoding.GetByteCount(_source, charPosition, additionalCharsCount);
 
