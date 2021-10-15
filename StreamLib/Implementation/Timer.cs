@@ -9,6 +9,8 @@ namespace StreamLib.Implementation
     internal class Timer
     {
 
+        private const long TicksPerNanoSecond = TimeSpan.TicksPerMillisecond / 1000;
+
         private long _ticks = 0;
 
         /// <summary>
@@ -28,14 +30,46 @@ namespace StreamLib.Implementation
         }
 
         /// <summary>
-        /// Gets the number of ticks between the last reset and
+        /// Gets the elapsed time of this timer.
+        /// </summary>
+        internal TimeSpan ElapsedTime
+        {
+            get
+            {
+                return TimeSpan.FromTicks(_ticks);
+            }
+        }
+
+        /// <summary>
+        /// Gets the number elapsed milliseconds between the last reset and
         /// the current value of DateTime.Now.Ticks, scaled to
         /// milliseconds.
         /// </summary>
         /// <returns></returns>
-        internal long GetMilliseconds()
+        internal long ElapsedMilliseconds
         {
-            return (DateTime.Now.Ticks - _ticks) / TimeSpan.TicksPerMillisecond;
+            get
+            {
+                return GetTicksElapsed() / TimeSpan.TicksPerMillisecond;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of nanoseconds elapsed since the last
+        /// reset of this timer.
+        /// </summary>
+        /// <returns></returns>
+        internal long ElapsedNanoseconds
+        {
+            get
+            {
+                return GetTicksElapsed() / TicksPerNanoSecond;
+            }
+        }
+
+        private long GetTicksElapsed()
+        {
+            return DateTime.Now.Ticks - _ticks;
         }
 
     }

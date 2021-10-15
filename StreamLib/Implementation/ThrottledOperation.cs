@@ -50,7 +50,7 @@ namespace StreamLib.Implementation
 
         private int Throttle()
         {
-            long millisecondsElapsedSinceLastRead = _timer.GetMilliseconds();
+            long millisecondsElapsedSinceLastRead = _timer.ElapsedMilliseconds;
 
             if (millisecondsElapsedSinceLastRead > _intervalLength)
             {
