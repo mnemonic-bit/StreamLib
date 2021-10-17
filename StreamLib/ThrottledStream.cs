@@ -31,6 +31,16 @@ namespace StreamLib
         private readonly ThrottledOperation _throttledReadOperation;
         private readonly ThrottledOperation _throttledWriteOperation;
 
+        /// <summary>
+        /// Inits a new instance of a ThrottledStream with the base-stream to use as
+        /// data source. The bytes-per-second sets the speed to which this stream-wrapper
+        /// will throttle the calls to the base-stream, if necessary.
+        /// </summary>
+        /// <param name="baseStream">The base stream which is wrapped by this instance</param>
+        /// <param name="bytesPerSecond">The speed to which the stream throttles</param>
+        /// <param name="throttleReads">Set this true, if read-operations are to be throttled</param>
+        /// <param name="throttleWrites">Set this true, if write-operations are to be throttled</param>
+        /// <param name="intervalLength">The interval-length used to partition time measurements and sleep-operations.</param>
         public ThrottledStream(Stream baseStream, int bytesPerSecond, bool throttleReads = true, bool throttleWrites = false, int intervalLength = 1000)
         {
             _baseStream = baseStream;
@@ -62,14 +72,14 @@ namespace StreamLib
 
         public override bool CanWrite => _baseStream.CanWrite;
 
-        public override long Length => _baseStream.Length;
-
-        public override long Position { get => _baseStream.Position; set => _baseStream.Position = value; }
-
         public override void Flush()
         {
             _baseStream.Flush();
         }
+
+        public override long Length => _baseStream.Length;
+
+        public override long Position { get => _baseStream.Position; set => _baseStream.Position = value; }
 
         public override int Read(byte[] buffer, int offset, int count)
         {

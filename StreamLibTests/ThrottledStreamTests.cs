@@ -4,13 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using Xunit;
 
-namespace ThrottledStreamTests
+namespace StreamLibTests
 {
     public class ThrottledStreamTests
     {
 
         [Fact]
-        public void Test()
+        public void Read_ShouldThrottleSpeed()
         {
             // Arrange
             int bytesPerSecond = 3;

@@ -1,11 +1,43 @@
-# ThrottledStream
+
+# Overview
+
+This library contains a collection of streams. Each stream implementation
+aims at providing a single functionality only on top of the common Stream
+implementation.
+
+
+
+## StringStream
+
+The StringStream is a wrapper class which provides a stream interface around
+any string instance. For each string that is wrapped, you need a new instance
+of a stream.
+
+To bridge the gap between the storage format of a string, which is basically
+a list of characters, and the output data type of the stream, a byte array
+as it is, you have to specify the encoding to use. By default the StringStream
+uses Encoding.Unicode, which is a UTF-16 encoding.
+
+### Quick Start
+
+A StringStream can be created with the default encoding (UTF-16) with the
+constuctor that accepts the string as the source of text to wrap a stream
+around.
+
+```
+string text = "SOME-TEST-TEXT";
+using StringStream stream = new StringStream(text);
+```
+
+
+## ThrottledStream
 
 This small library contains an implementation of a throttled stream.
 The stream operates on a base stream and throttles down the rate of
 bytes-per-second to a fixed maximum values for either Read() or Write()
 method calls, or both if you choose to.
 
-## Quick Start
+### Quick Start
 
 To get startet with a ThrottledStream, just wrap your current stream
 instance with an instance of a ThrottledStream, and use that reference
@@ -33,3 +65,4 @@ using var throttledStream = new ThrottledStream(baseStream, 4096, true, true);
 
 The example above created a ThrottledStream which throttles read and
 write operations.
+

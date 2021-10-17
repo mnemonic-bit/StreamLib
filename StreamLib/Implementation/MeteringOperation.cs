@@ -14,6 +14,14 @@ namespace StreamLib.Implementation
         private readonly int _intervalLengthInNanoseconds;
         private int _chunkSize;
 
+        /// <summary>
+        /// Inits a metering operatin. The length of the measurement interval
+        /// can be set with a parameter, progress-updates are given approximately
+        /// once in the interval.
+        /// </summary>
+        /// <param name="intervalLength">The length of the measurement interval.</param>
+        /// <param name="operationFn"></param>
+        /// <param name="exitConditionFn"></param>
         internal MeteringOperation(int intervalLength, Func<byte[], int, int, int> operationFn, Func<int, int, bool> exitConditionFn)
         {
             _intervalLengthInNanoseconds = intervalLength * 1000;
@@ -23,9 +31,9 @@ namespace StreamLib.Implementation
             _timer = new Timer();
             _operationTimer = new Timer();
 
-            // We assume here that 1k per second is a speed to start with,
+            // We assume here that approx. 1k per second is a speed to start with,
             // and set the chunk size accordingly.
-            _chunkSize = 1024 * 1000 / intervalLength;
+            _chunkSize = intervalLength;
         }
 
         /// <summary>
@@ -51,7 +59,10 @@ namespace StreamLib.Implementation
 
                 totalBytes += loadedChunkSize;
 
-                OnProgress(_timer.ElapsedTime, totalBytes);
+                if (OnProgress != null)
+                {
+                    OnProgress(_timer.ElapsedTime, totalBytes);
+                }
 
                 if (_exitConditionFn(loadedChunkSize, totalBytes))
                 {
@@ -64,10 +75,11 @@ namespace StreamLib.Implementation
 
         private void AdaptChunkSizeToActualSpeed(long elapsedNanoseconds)
         {
-            double speedDivertionRatio = (double)_intervalLengthInNanoseconds / (double)(elapsedNanoseconds + 1);
-            if (Math.Abs(speedDivertionRatio - 1d) > 1d)
+            double speedDivertionRatio = ((double)_intervalLengthInNanoseconds + 1d) / (double)(elapsedNanoseconds + 1);
+            double ratio = Math.Min(20, speedDivertionRatio);
+            if (Math.Abs(ratio - 1d) > 0.1d)
             {
-                _chunkSize = (int)((double)_chunkSize * speedDivertionRatio / 100d);
+                _chunkSize = (int)((double)_chunkSize * ratio);
             }
         }
 

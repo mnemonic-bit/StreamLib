@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace StreamLib
 {
@@ -46,6 +48,8 @@ namespace StreamLib
 
         public override bool CanWrite => false;
 
+        public override bool CanTimeout => false;
+
         public Encoding Encoding { get { return _encoding; } }
 
         public override void Flush() { }
@@ -57,13 +61,35 @@ namespace StreamLib
         public override int Read(byte[] buffer, int offset, int count)
         {
             int usableSpaceInBuffer = Math.Min(buffer.Length - offset, count);
+            return Read(buffer.AsSpan(offset, usableSpaceInBuffer));
+        }
 
-            int numberOfCharsToRead = GetNumberOfCharsThatFit(usableSpaceInBuffer);
-            int totalBytesRead = _encoding.GetBytes(_source, _currentCharPosition, numberOfCharsToRead, buffer, offset);
+        public override int Read(Span<byte> buffer)
+        {
+            int usableSpaceInBuffer = buffer.Length;
+
+            int numberOfCharsToRead = GetNumberOfCharsThatFitInto(usableSpaceInBuffer);
+            int totalBytesRead = _encoding.GetBytes(
+                _source.AsSpan().Slice(_currentCharPosition, numberOfCharsToRead),
+                buffer);
 
             _currentCharPosition += numberOfCharsToRead;
 
             return totalBytesRead;
+        }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return cancellationToken.IsCancellationRequested ?
+                ValueTask.FromCanceled<int>(cancellationToken) :
+                ValueTask.FromResult(Read(buffer.Span));
+        }
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return cancellationToken.IsCancellationRequested ?
+                Task.FromCanceled<int>(cancellationToken) :
+                Task.FromResult(Read(buffer, offset, count));
         }
 
         public override long Seek(long offset, SeekOrigin origin) { throw new NotSupportedException(); }
@@ -74,20 +100,20 @@ namespace StreamLib
 
         /// <summary>
         /// Calculates the number of chars that will fit into the number
-        /// of bytes given with the encoding that is used in this stream.
+        /// of bytes with the given encoding that is used in this stream.
         /// </summary>
         /// <param name="numberOfBytes">The maximum number of bytes that can be used for the encoding.</param>
         /// <returns>Returns the number of chars that will fit into the given number of bytes.</returns>
-        private int GetNumberOfCharsThatFit(int numberOfBytes)
+        private int GetNumberOfCharsThatFitInto(int numberOfBytes)
         {
             int numberOfChars = 0;
             int charPosition = _currentCharPosition;
             int bytePosition = 0;
 
-            while (_currentCharPosition < _source.Length && bytePosition < numberOfBytes)
+            while (charPosition < _source.Length && bytePosition < numberOfBytes)
             {
                 int remainingBytesCount = numberOfBytes - bytePosition;
-                int additionalCharsCount = CalculateCharsToRead(remainingBytesCount);
+                int additionalCharsCount = Math.Min(EstimateCharsToReadFromNumberOfBytes(remainingBytesCount), _source.Length - charPosition);
 
                 int nextByteCount = _encoding.GetByteCount(_source, charPosition, additionalCharsCount);
 
@@ -104,7 +130,7 @@ namespace StreamLib
             return numberOfChars;
         }
 
-        private int CalculateCharsToRead(int bytesToRead)
+        private int EstimateCharsToReadFromNumberOfBytes(int bytesToRead)
         {
             int charsToRead = bytesToRead / _maxBytesPerChar;
 
