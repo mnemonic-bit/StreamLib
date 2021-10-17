@@ -108,5 +108,75 @@ namespace StreamLibTests
             Assert.Equal(text, encoding.GetString(buffer, 0, readByteCount));
         }
 
+        [Fact]
+        public void Read_ShouldReturnNoCharacter_WhenNumberOfRequestedBytesIsNotBigEnoughToRepresentCharacter()
+        {
+            // Arrange
+            string smileyAsString = char.ConvertFromUtf32(0x1F642); 
+            string text = $"{smileyAsString}abc";
+            Encoding encoding = Encoding.Unicode;
+            int lengthInBytes = encoding.GetByteCount(text);
+            int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
+            int bufferSize = 10;
+
+            StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            byte[] buffer = new byte[bufferSize];
+            int readByteCount = stringStream.Read(buffer, 0, 1);
+
+            // Assert
+            Assert.Equal(0, readByteCount);
+        }
+
+        [Theory]
+        [InlineData(0x1F642, 2)] // smiley
+        [InlineData(0x03a0, 2)] // PI
+        public void Read_ShouldReturnOneCharacter_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacter(int characterUnicode, int encodedCharacterLength)
+        {
+            // Arrange
+            string smileyAsString = char.ConvertFromUtf32(characterUnicode);
+            string text = $"{smileyAsString}abc";
+            Encoding encoding = Encoding.Unicode;
+            int lengthInBytes = encoding.GetByteCount(text);
+            int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
+            int bufferSize = 10;
+
+            StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            byte[] buffer = new byte[bufferSize];
+            int readByteCount = stringStream.Read(buffer, 0, encodedCharacterLength);
+
+            // Assert
+            Assert.Equal(encodedCharacterLength, readByteCount);
+        }
+
+        [Theory]
+        [InlineData(0x1F642, 2)] // smiley
+        [InlineData(0x03a0, 2)] // PI
+        public void Read_ShouldReturnOneCharacterEach_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacterRespectively(int characterUnicode, int encodedCharacterLength)
+        {
+            // Arrange
+            string smileyAsString = char.ConvertFromUtf32(characterUnicode);
+            string text = $"{smileyAsString}{smileyAsString}";
+            Encoding encoding = Encoding.Unicode;
+            int lengthInBytes = encoding.GetByteCount(text);
+            int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
+            int bufferSize = 10;
+
+            StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            byte[] buffer = new byte[bufferSize];
+            int readByteCount1 = stringStream.Read(buffer, 0, encodedCharacterLength);
+            int readByteCount2 = stringStream.Read(buffer, readByteCount1, encodedCharacterLength);
+
+            // Assert
+            Assert.Equal(encodedCharacterLength, readByteCount1);
+            Assert.Equal(encodedCharacterLength, readByteCount2);
+            Assert.Equal(text, encoding.GetString(buffer, 0, readByteCount1 + readByteCount1));
+        }
+
     }
 }
