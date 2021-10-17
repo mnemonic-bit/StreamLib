@@ -15,7 +15,7 @@ namespace StreamLibTests
             Encoding encoding = Encoding.Unicode;
             int lengthInBytes = encoding.GetByteCount(text);
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[lengthInBytes];
@@ -34,7 +34,7 @@ namespace StreamLibTests
             Encoding encoding = Encoding.Unicode;
             int lengthInBytes = encoding.GetByteCount(text);
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[lengthInBytes];
@@ -56,7 +56,7 @@ namespace StreamLibTests
             int bufferSize = 3;
             int requestedBytes = 2;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];
@@ -77,7 +77,7 @@ namespace StreamLibTests
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
             int bufferSize = 3;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];
@@ -97,7 +97,7 @@ namespace StreamLibTests
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
             int bufferSize = 100;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];
@@ -119,7 +119,7 @@ namespace StreamLibTests
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
             int bufferSize = 10;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];
@@ -142,7 +142,7 @@ namespace StreamLibTests
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
             int bufferSize = 10;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];
@@ -165,7 +165,7 @@ namespace StreamLibTests
             int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
             int bufferSize = 10;
 
-            StringStream stringStream = new StringStream(text, encoding);
+            using StringStream stringStream = new StringStream(text, encoding);
 
             // Act
             byte[] buffer = new byte[bufferSize];

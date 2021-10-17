@@ -48,6 +48,8 @@ namespace StreamLib
 
         public override bool CanWrite => false;
 
+        public override bool CanTimeout => false;
+
         public Encoding Encoding { get { return _encoding; } }
 
         public override void Flush() { }
@@ -67,7 +69,9 @@ namespace StreamLib
             int usableSpaceInBuffer = buffer.Length;
 
             int numberOfCharsToRead = GetNumberOfCharsThatFitInto(usableSpaceInBuffer);
-            int totalBytesRead = _encoding.GetBytes(_source.AsSpan().Slice(_currentCharPosition, numberOfCharsToRead), buffer);
+            int totalBytesRead = _encoding.GetBytes(
+                _source.AsSpan().Slice(_currentCharPosition, numberOfCharsToRead),
+                buffer);
 
             _currentCharPosition += numberOfCharsToRead;
 
