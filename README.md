@@ -32,7 +32,6 @@ using StringStream stream = new StringStream(text);
 
 ## ThrottledStream
 
-This small library contains an implementation of a throttled stream.
 The stream operates on a base stream and throttles down the rate of
 bytes-per-second to a fixed maximum values for either Read() or Write()
 method calls, or both if you choose to.
@@ -66,3 +65,20 @@ using var throttledStream = new ThrottledStream(baseStream, 4096, true, true);
 The example above created a ThrottledStream which throttles read and
 write operations.
 
+
+## TextPositionReader
+
+This implementation of a TextReader can be used to get the position in the
+text you are currently reading from.
+
+### Quick Start
+
+To retreive the position of the text you read from a TextReader or one of
+its subclasses, e.g. StreamReader or StringReader, just wrap you instance
+around an instance of TextPositinReader:
+
+```
+using var baseReader = new TextReader(str);
+using var textPositinReader = new TextPositionReader(baseReader);
+// from here use the textPositinReader instead of baseReader...
+```
