@@ -1,9 +1,6 @@
-﻿using System;
+﻿using StreamLib.Implementation;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
-using StreamLib.Implementation;
 using Xunit;
 
 namespace StreamLibTests
@@ -106,9 +103,6 @@ namespace StreamLibTests
         [InlineData(10000, 0, 500, 1000)]
         public void MeterOperation_ShouldIncreaseRate_When(int bufferSize, int offset, int count, int chunkSize)
         {
-            TextReader ert;
-            StringReader sdfsdf;
-            StreamReader sdfsfdsdf;
             // Arrange
             int baseTicksInterval = 500;
 
