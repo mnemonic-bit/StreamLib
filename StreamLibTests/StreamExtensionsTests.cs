@@ -9,6 +9,24 @@ namespace StreamLibTests
     public class StreamExtensionsTests
     {
 
+        [Theory]
+        [InlineData("SOME-TEST-TEXT")]
+        [InlineData("SOME-TEST-TEXT SOME-TEST-TEXT SOME-TEST-TEXT")]
+        public void ReadString_ShouldReturnSameBytes_WhenSourceStreamContainsBytes(string text)
+        {
+            // Arrange
+            Encoding encoding = Encoding.Unicode;
+            byte[] textAsBytes = encoding.GetBytes(text);
+
+            using StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            string result = stringStream.ReadString(encoding);
+
+            // Assert
+            result.Should().BeEquivalentTo(text);
+        }
+
         [Fact]
         public void ReadToEnd_ShouldReturnSameBytes_WhenSourceStreamContainsNoBytes_()
         {

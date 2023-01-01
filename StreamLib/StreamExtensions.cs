@@ -1,10 +1,55 @@
 ﻿using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace StreamLib
 {
     public static class StreamExtensions
     {
+
+        /// <summary>
+        /// Reads the contents of a stream and creates a string from
+        /// that contents.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static string ReadString(this Stream stream, Encoding? encoding = null)
+        {
+            encoding ??= Encoding.UTF8;
+
+            using StreamReader reader = new StreamReader(
+                stream,
+                encoding: encoding,
+                detectEncodingFromByteOrderMarks: false,
+                leaveOpen: true);
+
+            string value = reader.ReadToEnd();
+
+            return value;
+        }
+
+        /// <summary>
+        /// Reads asynchronously the contents of a stream and creates
+        /// a string from that contents.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static async Task<string> ReadStringAsync(this Stream stream, Encoding? encoding = null)
+        {
+            encoding ??= Encoding.UTF8;
+
+            using StreamReader reader = new StreamReader(
+                stream,
+                encoding: encoding,
+                detectEncodingFromByteOrderMarks: false,
+                leaveOpen: true);
+
+            string value = await reader.ReadToEndAsync();
+
+            return value;
+        }
 
         /// <summary>
         /// Reads the whole contents of a stream and returns it
