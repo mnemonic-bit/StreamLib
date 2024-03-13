@@ -11,8 +11,8 @@ namespace StreamLib
         /// Reads the contents of a stream and creates a string from
         /// that contents.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="encoding"></param>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use while reading from the stream. If null, the default Encoding.UTF8 is used.</param>
         /// <returns></returns>
         public static string ReadString(this Stream stream, Encoding? encoding = null)
         {
@@ -33,8 +33,8 @@ namespace StreamLib
         /// Reads asynchronously the contents of a stream and creates
         /// a string from that contents.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="encoding"></param>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use while reading from the stream. If null, the default Encoding.UTF8 is used.</param>
         /// <returns></returns>
         public static async Task<string> ReadStringAsync(this Stream stream, Encoding? encoding = null)
         {
@@ -60,13 +60,17 @@ namespace StreamLib
         /// </summary>
         /// <param name="stream"></param>
         /// <returns>Returns the stream's contents as byte array.</returns>
-        public static byte[] ReadToEnd(this Stream stream)
+        public static byte[] ReadAll(this Stream stream)
         {
-            byte[] buffer = new byte[16*1024];
+            byte[] buffer = new byte[DefaultBufferSize];
 
             using var memoryStream = new MemoryStream();
 
-            stream.CopyTo(memoryStream);
+            int numberOfBytesRead = 0;
+            while ((numberOfBytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                memoryStream.Write(buffer, 0, numberOfBytesRead);
+            }
 
             return memoryStream.ToArray();
         }
@@ -80,16 +84,41 @@ namespace StreamLib
         /// </summary>
         /// <param name="stream"></param>
         /// <returns>Returns the stream's contents as byte array.</returns>
-        public static async Task<byte[]> ReadToEndAsync(this Stream stream)
+        public static async Task<byte[]> ReadAllAsync(this Stream stream)
         {
-            byte[] buffer = new byte[16 * 1024];
+            byte[] buffer = new byte[DefaultBufferSize];
 
             using var memoryStream = new MemoryStream();
 
-            await stream.CopyToAsync(memoryStream);
+            int numberOfBytesRead = 0;
+            while ((numberOfBytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await memoryStream.WriteAsync(buffer, 0, numberOfBytesRead);
+            }
 
             return memoryStream.ToArray();
         }
+
+
+        public static void WriteAllTo(this Stream stream, Stream outputStream)
+        {
+            byte[] buffer = new byte[DefaultBufferSize];
+
+            int numberOfBytesRead;
+            while ((numberOfBytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                outputStream.Write(buffer, 0, numberOfBytesRead);
+            }
+
+            stream.CopyTo(outputStream);
+        }
+
+
+        /// <summary>
+        /// The size of the buffer used when copying anything between streams.
+        /// </summary>
+        private const int DefaultBufferSize = 1024;
+
 
     }
 }

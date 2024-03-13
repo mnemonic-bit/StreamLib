@@ -130,7 +130,7 @@ namespace StreamLibTests
         }
 
         [Theory]
-        [InlineData(0x1F642, 2)] // smiley
+        [InlineData(0x1F642, 4)] // smiley
         [InlineData(0x03a0, 2)] // PI
         public void Read_ShouldReturnOneCharacter_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacter(int characterUnicode, int encodedCharacterLength)
         {
@@ -150,10 +150,11 @@ namespace StreamLibTests
 
             // Assert
             Assert.Equal(encodedCharacterLength, readByteCount);
+            Assert.Equal($"{smileyAsString}", encoding.GetString(buffer, 0, readByteCount));
         }
 
         [Theory]
-        [InlineData(0x1F642, 2)] // smiley
+        [InlineData(0x1F642, 4)] // smiley
         [InlineData(0x03a0, 2)] // PI
         public void Read_ShouldReturnOneCharacterEach_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacterRespectively(int characterUnicode, int encodedCharacterLength)
         {

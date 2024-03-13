@@ -7,19 +7,15 @@ namespace StreamLib
     /// A MeteringStream can be used to measure the amount of data
     /// that is read from or writtenn to a base stream. It wraps around
     /// an instance of Stream and provides the same interface, hence it
-    /// can be used as a replacement of the original base stream.
+    /// can be used as a replacement of the original base stream with
+    /// the addition of speed-measurement features.
     /// 
     /// To measure the progress or speed of read or write operations on
     /// the base stream, calls to the base-stream's read and write methods
     /// are chunked, to give the caller of this stream steady feedback.
     /// </summary>
-    public class MeteringStream : Stream
+    public sealed class MeteringStream : Stream
     {
-
-        private readonly Stream _baseStream;
-
-        private readonly MeteringOperation _meteringReadOperation;
-        private readonly MeteringOperation _meteringWriteOperation;
 
         /// <summary>
         /// Creates a new wrapper stream around a base stream with a given
@@ -80,6 +76,13 @@ namespace StreamLib
         {
             _meteringWriteOperation.MeterOperation(buffer, offset, count);
         }
+
+
+        private readonly Stream _baseStream;
+
+        private readonly MeteringOperation _meteringReadOperation;
+        private readonly MeteringOperation _meteringWriteOperation;
+
 
     }
 }

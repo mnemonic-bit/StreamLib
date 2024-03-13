@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace StreamLib.Implementation
 {
@@ -6,7 +7,7 @@ namespace StreamLib.Implementation
     /// The Timer class helps measuring elapsed milliseconds
     /// since its last reset.
     /// </summary>
-    internal class Timer
+    internal sealed class Timer
     {
 
         private const long TicksPerNanoSecond = TimeSpan.TicksPerMillisecond / 1000;
@@ -34,6 +35,7 @@ namespace StreamLib.Implementation
         /// </summary>
         internal TimeSpan ElapsedTime
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return TimeSpan.FromTicks(_ticks);
@@ -48,6 +50,7 @@ namespace StreamLib.Implementation
         /// <returns></returns>
         internal long ElapsedMilliseconds
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return GetTicksElapsed() / TimeSpan.TicksPerMillisecond;
@@ -61,12 +64,14 @@ namespace StreamLib.Implementation
         /// <returns></returns>
         internal long ElapsedNanoseconds
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return GetTicksElapsed() / TicksPerNanoSecond;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private long GetTicksElapsed()
         {
             return DateTime.Now.Ticks - _ticks;

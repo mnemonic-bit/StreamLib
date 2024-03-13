@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace StreamLib.Implementation
 {
-    internal class ThrottledOperation
+    internal sealed class ThrottledOperation
     {
 
         private readonly Func<byte[], int, int, int> _operationFn;
@@ -48,6 +49,7 @@ namespace StreamLib.Implementation
             return totalBytes;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int Throttle()
         {
             long millisecondsElapsedSinceLastRead = _timer.ElapsedMilliseconds;
@@ -69,6 +71,7 @@ namespace StreamLib.Implementation
             return ResetTimeFrame();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int ResetTimeFrame()
         {
             _timer.Reset();
@@ -76,6 +79,7 @@ namespace StreamLib.Implementation
             return _bytesPerInterval;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int Minimum(params int[] values)
         {
             return values.Min();

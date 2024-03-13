@@ -50,7 +50,7 @@ using var throttledStream = new ThrottledStream(baseStream, 4096);
 
 The constructor needs a base stream as well as the speed-limit the
 ThrottledStream must enforce, in the example above we've chosen 4096
-bytes per second, i.e. 4 kb.
+bytes per second, i.e. 4 kb/s.
 
 By default the ThrottledStream only throttles the speed of reading
 from the base-stream. We can change that, by setting one of the optional

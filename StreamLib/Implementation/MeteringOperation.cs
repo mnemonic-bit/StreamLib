@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace StreamLib.Implementation
 {
-    internal class MeteringOperation
+    internal sealed class MeteringOperation
     {
-
-        private readonly Func<byte[], int, int, int> _operationFn;
-        private readonly Func<int, int, bool> _exitConditionFn;
-
-        private readonly Timer _timer;
-        private readonly Timer _operationTimer;
-        private readonly int _intervalLengthInNanoseconds;
-        private int _chunkSize;
 
         /// <summary>
         /// Inits a metering operatin. The length of the measurement interval
@@ -40,7 +33,7 @@ namespace StreamLib.Implementation
         /// Event handler which receives the on-progress events
         /// created by this component.
         /// </summary>
-        public event Action<TimeSpan, int> OnProgress;
+        public event Action<TimeSpan, int>? OnProgress;
 
         internal int MeterOperation(byte[] buffer, int offset, int count)
         {
@@ -73,6 +66,17 @@ namespace StreamLib.Implementation
             return totalBytes;
         }
 
+
+        private readonly Func<byte[], int, int, int> _operationFn;
+        private readonly Func<int, int, bool> _exitConditionFn;
+
+        private readonly Timer _timer;
+        private readonly Timer _operationTimer;
+        private readonly int _intervalLengthInNanoseconds;
+        private int _chunkSize;
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AdaptChunkSizeToActualSpeed(long elapsedNanoseconds)
         {
             double speedDivertionRatio = ((double)_intervalLengthInNanoseconds + 1d) / (double)(elapsedNanoseconds + 1);
@@ -83,6 +87,7 @@ namespace StreamLib.Implementation
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int Minimum(params int[] values)
         {
             return values.Min();

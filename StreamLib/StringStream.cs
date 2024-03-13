@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace StreamLib
     /// and result in valid characters which match the original source
     /// string content.
     /// </summary>
-    public class StringStream : Stream
+    public sealed class StringStream : Stream
     {
 
         public StringStream(string source)
@@ -32,15 +33,6 @@ namespace StreamLib
             _currentBytePosition = 0;
             _currentCharPosition = 0;
         }
-
-        private readonly string _source;
-
-        private int _currentBytePosition;
-        private int _currentCharPosition;
-
-        private Encoding _encoding;
-        private readonly int _lengthInBytes;
-        private readonly int _maxBytesPerChar;
 
         public override bool CanRead => true;
 
@@ -98,12 +90,24 @@ namespace StreamLib
 
         public override void Write(byte[] buffer, int offset, int count) { throw new NotSupportedException(); }
 
+
+        private readonly string _source;
+
+        private int _currentBytePosition;
+        private int _currentCharPosition;
+
+        private Encoding _encoding;
+        private readonly int _lengthInBytes;
+        private readonly int _maxBytesPerChar;
+
+
         /// <summary>
         /// Calculates the number of chars that will fit into the number
         /// of bytes with the given encoding that is used in this stream.
         /// </summary>
         /// <param name="numberOfBytes">The maximum number of bytes that can be used for the encoding.</param>
         /// <returns>Returns the number of chars that will fit into the given number of bytes.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetNumberOfCharsThatFitInto(int numberOfBytes)
         {
             int numberOfChars = 0;
@@ -130,6 +134,7 @@ namespace StreamLib
             return numberOfChars;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EstimateCharsToReadFromNumberOfBytes(int bytesToRead)
         {
             int charsToRead = bytesToRead / _maxBytesPerChar;

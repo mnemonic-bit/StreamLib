@@ -21,7 +21,7 @@ namespace StreamLib
     /// number of bytes per time interval, but in total with more than that maximum
     /// number, the stream still throttles.
     /// </summary>
-    public class ThrottledStream : Stream
+    public sealed class ThrottledStream : Stream
     {
 
         private readonly Stream _baseStream;

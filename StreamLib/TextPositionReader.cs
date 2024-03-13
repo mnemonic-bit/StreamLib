@@ -9,7 +9,7 @@ namespace StreamLib
     /// gives information about the current reading position in the
     /// text that is being read.
     /// </summary>
-    public class TextPositionReader : TextReader
+    public sealed class TextPositionReader : TextReader
     {
 
         public const int FIRST_LINE_NUMBER = 1;
@@ -57,16 +57,18 @@ namespace StreamLib
             return ch;
         }
 
+
         private readonly TextReader _reader;
 
         private int _lineNumber;
         private int _columnNumber;
         private bool _awaitingSlashNewline;
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AdjustPosition(int ch)
         {
-            switch(IsLineEnding(ch))
+            switch (IsLineEnding(ch))
             {
                 case ELineBreak.NewLine:
                     {
@@ -93,24 +95,30 @@ namespace StreamLib
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ELineBreak IsLineEnding(int ch)
         {
-            if (ch == '\n')
+            switch (ch)
             {
-                if (_awaitingSlashNewline)
-                {
-                    _awaitingSlashNewline = false;
-                    return ELineBreak.Ignore;
-                }
-                else
-                {
-                    return ELineBreak.NewLine;
-                }
+                case '\n':
+                    {
+                        if (_awaitingSlashNewline)
+                        {
+                            _awaitingSlashNewline = false;
+                            return ELineBreak.Ignore;
+                        }
+                        else
+                        {
+                            return ELineBreak.NewLine;
+                        }
+                    }
+                case '\r':
+                    {
+                        _awaitingSlashNewline = true;
+                        return ELineBreak.NewLine;
+                    }
+                default:
+                    {
+                        return ELineBreak.SameLine;
+                    }
             }
-            else if (ch == '\r')
-            {
-                _awaitingSlashNewline = true;
-                return ELineBreak.NewLine;
-            }
-            return ELineBreak.SameLine;
         }
 
     }
