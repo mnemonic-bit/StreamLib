@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-	  <Version>0.7.2</Version>
+	  <Version>0.7.3</Version>
 	  <IsPackable>true</IsPackable>
 	  <AssemblyName>StreamLib</AssemblyName>
 	  <RootNamespace>StreamLib</RootNamespace>
@@ -11,6 +11,12 @@
 
   <ItemGroup>
     <None Include=".\README.md" Pack="true" PackagePath="." />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
