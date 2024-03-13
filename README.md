@@ -3,7 +3,7 @@
 
 This library contains a collection of streams. Each stream implementation
 aims at providing a single functionality only on top of the common Stream
-implementation.
+or other kind of data source (e.g. String).
 
 
 
