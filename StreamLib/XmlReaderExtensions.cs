@@ -12,11 +12,17 @@ namespace StreamLib
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Stream ToStream(this XmlReader reader)
+        public static Stream ToStream(this XmlReader reader, bool omitXmlDeclaration = false)
         {
             MemoryStream stream = new MemoryStream();
-            
-            using XmlWriter writer = XmlWriter.Create(stream);
+
+            XmlWriterSettings settings = new XmlWriterSettings()
+            {
+                OmitXmlDeclaration = omitXmlDeclaration,
+                CloseOutput = false,
+            };
+
+            using XmlWriter writer = XmlWriter.Create(stream, settings);
 
             writer.WriteNode(reader, true);
             writer.Flush();
