@@ -99,7 +99,11 @@ namespace StreamLib
             return memoryStream.ToArray();
         }
 
-
+        /// <summary>
+        /// Writes the whole contents of one stream to another.
+        /// </summary>
+        /// <param name="stream">The source stream, where the data is copied from.</param>
+        /// <param name="outputStream">The destination stream where the data is copied to.</param>
         public static void WriteAllTo(this Stream stream, Stream outputStream)
         {
             byte[] buffer = new byte[DefaultBufferSize];
@@ -117,7 +121,7 @@ namespace StreamLib
         /// <summary>
         /// The size of the buffer used when copying anything between streams.
         /// </summary>
-        private const int DefaultBufferSize = 1024;
+        private const int DefaultBufferSize = 4096;
 
 
     }
