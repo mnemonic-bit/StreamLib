@@ -3,10 +3,28 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-	  <Version>0.8.1</Version>
-	  <IsPackable>true</IsPackable>
-	  <AssemblyName>StreamLib</AssemblyName>
-	  <RootNamespace>StreamLib</RootNamespace>
+	  <Version>0.8.2</Version>
+    
+    <Title>Useful Stream implementations.</Title>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <RepositoryUrl>https://github.com/mnemonic-bit/StreamLib.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <Authors>Marco Ruether</Authors>
+    <Copyright>Marco Ruether</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <PackageId>StreamLib</PackageId>
+    <Description>This library provides Stream implementations for common data types for productivity and performance improvements.</Description>
+    <PackageTags>Stream, throttle, metering</PackageTags>
+    <IsPackable>true</IsPackable>
+
+    <AssemblyName>StreamLib</AssemblyName>
+    <RootNamespace>StreamLib</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
