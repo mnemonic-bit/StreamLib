@@ -14,7 +14,7 @@ namespace StreamLib
         /// <returns></returns>
         public static Stream ToStream(this XmlReader reader, bool omitXmlDeclaration = false)
         {
-            MemoryStream stream = new MemoryStream();
+            var stream = new EphemeralStream();
 
             XmlWriterSettings settings = new XmlWriterSettings()
             {
@@ -38,7 +38,7 @@ namespace StreamLib
         /// <returns></returns>
         public static async Task<Stream> ToStreamAsync(this XmlReader reader)
         {
-            MemoryStream stream = new MemoryStream();
+            var stream = new EphemeralStream();
 
             using XmlWriter writer = XmlWriter.Create(stream);
 

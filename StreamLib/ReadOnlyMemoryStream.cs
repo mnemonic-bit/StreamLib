@@ -3,6 +3,11 @@ using System.IO;
 
 namespace StreamLib
 {
+    /// <summary>
+    /// Wraps the <code>Stream</code> API around a <code>ReadOnlyMemory</code> reference.
+    /// As an <code>ArraySegment</code> can be cast implicitly to <code>ReadOnlyMemory</code>,
+    /// We only provide this class as an API wrapper.
+    /// </summary>
     public sealed class ReadOnlyMemoryStream : Stream
     {
 
@@ -24,12 +29,7 @@ namespace StreamLib
             get { return _position; }
             set
             {
-                if (value > Int32.MaxValue)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), "The given position exceeds the capabilities of an underlying ReadOnlyMemory.");
-                }
-
-                _position = (int)value;
+                Seek(value, SeekOrigin.Begin);
             }
         }
 
@@ -60,29 +60,17 @@ namespace StreamLib
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            if (offset > Int32.MaxValue)
+            var newPosition = origin switch
             {
-                throw new ArgumentOutOfRangeException(nameof(offset), "The given position exceeds the capabilities of an underlying ReadOnlyMemory.");
-            }
+                SeekOrigin.Begin => offset,
+                SeekOrigin.Current => _position + offset,
+                SeekOrigin.End => _memory.Length - (int)offset,
+                _ => throw new ArgumentOutOfRangeException(nameof(origin)),
+            };
 
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    {
-                        _position = (int)offset;
-                        break;
-                    }
-                case SeekOrigin.Current:
-                    {
-                        _position += (int)offset;
-                        break;
-                    }
-                case SeekOrigin.End:
-                    {
-                        _position = _memory.Length - (int)offset;
-                        break;
-                    }
-            }
+            EnsurePositionIsValid(newPosition);
+
+            _position = (int)newPosition;
 
             return _position;
         }
@@ -100,5 +88,20 @@ namespace StreamLib
 
         private int _position = 0;
         private readonly ReadOnlyMemory<byte> _memory;
+
+
+        private void EnsurePositionIsValid(long position)
+        {
+            if (position < 0)
+            {
+                throw new ArgumentException($"The given offset would move the current position out of bounds of the underlying ReadonlyMemory. The new calculated position would be {position}, which moves past the lower limit of the read-only memory.");
+            }
+
+            if (position > Int32.MaxValue)
+            {
+                throw new ArgumentException($"The given offset would move the current position out of bounds of the underlying ReadonlyMemory. The new calculated position would be {position}, while the read-only memory has a length of {_memory.Length}.");
+            }
+        }
+
     }
 }

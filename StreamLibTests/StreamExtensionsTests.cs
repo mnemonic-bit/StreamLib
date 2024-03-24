@@ -11,6 +11,57 @@ namespace StreamLibTests
     public class StreamExtensionsTests
     {
 
+        [Fact]
+        public void Compress_ShouldReturnTheSameStream_WhenNoCompressionIsGiven()
+        {
+            // Arrange
+            string input = "HELLO-WORLD";
+            byte[] buffer = Encoding.UTF8.GetBytes(input);
+            MemoryStream stream = new MemoryStream(buffer);
+
+            // Act
+            var result = stream.Compress();
+
+            // Assert
+            result.Should().BeSameAs(stream);
+        }
+
+        [Fact]
+        public void Compress_ShouldReturnTheSameStream_WhenNoCompressionIsGiven_RENAME1()
+        {
+            // Arrange
+            string input = "HELLO-WORLD";
+            StringStream sourceStream = new StringStream(input);
+            MemoryStream destinationStream = new MemoryStream();
+
+            // Act
+            var compressionStream = destinationStream.Compress("gzip");
+            sourceStream.CopyToAsync(compressionStream);
+            compressionStream.Flush();
+
+            destinationStream.Position = 0;
+            var resultBuffer = destinationStream.ReadAll();
+
+            // Assert
+            resultBuffer.Should().NotBeNull();
+            resultBuffer.Length.Should().BeGreaterThan(0);
+        }
+
+        [Fact]
+        public void Decompress_ShouldReturnTheSameStream_WhenNoCompressionIsGiven()
+        {
+            // Arrange
+            string input = "HELLO-WORLD";
+            byte[] buffer = Encoding.UTF8.GetBytes(input);
+            MemoryStream stream = new MemoryStream(buffer);
+
+            // Act
+            var result = stream.Decompress();
+
+            // Assert
+            result.Should().BeSameAs(stream);
+        }
+
         [Theory]
         [InlineData("SOME-TEST-TEXT")]
         [InlineData("SOME-TEST-TEXT SOME-TEST-TEXT SOME-TEST-TEXT")]
