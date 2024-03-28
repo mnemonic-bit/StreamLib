@@ -146,29 +146,6 @@ namespace StreamLib
         }
 
         /// <summary>
-        /// Resizes the array which holds all buffer-arrays.
-        /// </summary>
-        private void ResizeBufferChunks(long? minimumNumberOfChunks = null)
-        {
-            if (_fixedSize)
-            {
-                throw new ArgumentOutOfRangeException("This stream cannot be resized.");
-            }
-
-            if (minimumNumberOfChunks.HasValue && minimumNumberOfChunks.Value > Int32.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException($"The requested number of chunks to allocate exceeds this stream's capabilities. The allocation request was for {minimumNumberOfChunks.Value} chunks.");
-            }
-
-            int newNumberOfChunks = minimumNumberOfChunks.HasValue ? (int)minimumNumberOfChunks.Value : _bufferChunks.Length * 2;
-
-            byte[][] oldBufferChunks = _bufferChunks;
-            _bufferChunks = ArrayPool<byte[]>.Shared.Rent(newNumberOfChunks);
-            Array.Copy(oldBufferChunks, _bufferChunks, oldBufferChunks.Length);
-            ArrayPool<byte[]>.Shared.Return(_bufferChunks);
-        }
-
-        /// <summary>
         /// Returns an array containing all contents of this stream so far.
         /// </summary>
         /// <returns></returns>
@@ -287,6 +264,26 @@ namespace StreamLib
 
             byte[] lastChunk = EnsureChunk(endChunk);
             yield return new ArraySegment<byte>(lastChunk, 0, endOffset + 1);
+        }
+
+        private void ResizeBufferChunks(long? minimumNumberOfChunks = null)
+        {
+            if (_fixedSize)
+            {
+                throw new ArgumentOutOfRangeException("This stream cannot be resized.");
+            }
+
+            if (minimumNumberOfChunks.HasValue && minimumNumberOfChunks.Value > Int32.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"The requested number of chunks to allocate exceeds this stream's capabilities. The allocation request was for {minimumNumberOfChunks.Value} chunks.");
+            }
+
+            int newNumberOfChunks = minimumNumberOfChunks.HasValue ? (int)minimumNumberOfChunks.Value : _bufferChunks.Length * 2;
+
+            byte[][] oldBufferChunks = _bufferChunks;
+            _bufferChunks = ArrayPool<byte[]>.Shared.Rent(newNumberOfChunks);
+            Array.Copy(oldBufferChunks, _bufferChunks, oldBufferChunks.Length);
+            ArrayPool<byte[]>.Shared.Return(_bufferChunks);
         }
 
     }

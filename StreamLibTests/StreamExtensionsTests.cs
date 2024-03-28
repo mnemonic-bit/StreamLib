@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamLibTests
 {
@@ -47,6 +48,23 @@ namespace StreamLibTests
             resultBuffer.Length.Should().BeGreaterThan(0);
         }
 
+        [Theory]
+        [InlineData("U09NRS1URVNULVRFWFQ=", "SOME-TEST-TEXT")]
+        [InlineData("U09NRS1URVNULVRFWFQgU09NRS1URVNULVRFWFQgU09NRS1URVNULVRFWFQ=", "SOME-TEST-TEXT SOME-TEST-TEXT SOME-TEST-TEXT")]
+        public void DecodeBase64_Should(string encodedText, string text)
+        {
+            // Arrange
+            Encoding encoding = Encoding.UTF8;
+            StringStream stream = new StringStream(encodedText, encoding);
+
+            // Act
+            var decodedStream = stream.DecodeBase64();
+
+            // Assert
+            string resultString = encoding.GetString(decodedStream.ReadAll());
+            resultString.Should().Be(text);
+        }
+
         [Fact]
         public void Decompress_ShouldReturnTheSameStream_WhenNoCompressionIsGiven()
         {
@@ -60,6 +78,41 @@ namespace StreamLibTests
 
             // Assert
             result.Should().BeSameAs(stream);
+        }
+
+        [Theory]
+        [InlineData("SOME-TEST-TEXT", "U09NRS1URVNULVRFWFQ=")]
+        [InlineData("SOME-TEST-TEXT SOME-TEST-TEXT SOME-TEST-TEXT", "U09NRS1URVNULVRFWFQgU09NRS1URVNULVRFWFQgU09NRS1URVNULVRFWFQ=")]
+        public void EncodeBase64_ShouldReturnProperEncodedStream(string text, string encodedText)
+        {
+            // Arrange
+            Encoding encoding = Encoding.UTF8;
+            StringStream stream = new StringStream(text, encoding);
+
+            // Act
+            var encodedStream = stream.EncodeBase64();
+
+            // Assert
+            string resultString = encoding.GetString(encodedStream.ReadAll());
+            resultString.Should().Be(encodedText);
+        }
+
+        [Theory]
+        [InlineData("SOME-TEST-TEXT")]
+        [InlineData("SOME-TEST-TEXT SOME-TEST-TEXT SOME-TEST-TEXT")]
+        public void EncodeBase64_ShouldWorkBackAndForth(string text)
+        {
+            // Arrange
+            Encoding encoding = Encoding.UTF8;
+            StringStream stream = new StringStream(text, encoding);
+
+            // Act
+            var encodedStream = stream.EncodeBase64();
+            var decodedStream = encodedStream.DecodeBase64();
+
+            // Assert
+            string resultString = encoding.GetString(decodedStream.ReadAll());
+            resultString.Should().Be(text);
         }
 
         [Theory]

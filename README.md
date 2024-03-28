@@ -82,3 +82,21 @@ using var baseReader = new TextReader(str);
 using var textPositinReader = new TextPositionReader(baseReader);
 // from here use the textPositinReader instead of baseReader...
 ```
+
+
+## Stream Extension Methods
+
+This library contains a few Stream extension methods which implement recurring
+patters when it comes to Stream interaction.
+
+We give a brief overview of the extension methods here. More details are
+due to a forthcoming documentation of this library. And as always, the source-code
+is the most accurate self-documentation.
+
+* DecodeBase64: uses the contents of the stream to create a new stream which will decode its content from Base64.
+* EncodeBAse64: uses the contents of the stream to create a new stream which will contain a Base64 encode form of that content.
+* ReadString: reads the whole contents of the stream and creates a string from this contents. The default encoding is UTF8, but can be optionally set to any desired encoding.
+* ReadStringAsync: the same as ReadString, but uses the asynchronous API of the stream instead.
+* ReadAll: simply reads the whole contents of the stream and returns a byte[] of that contents.
+* ReadAllAsync: the same as ReadAll, but uses the asynchronous API of the stream instead.
+* WriteAllTo: copies the whole contents of the stream to a destinatoin stream.

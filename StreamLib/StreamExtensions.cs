@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,30 @@ namespace StreamLib
         }
 
         /// <summary>
+        /// Returns a stream with the contents of the base-stream decoded
+        /// from Base64.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static Stream DecodeBase64(this Stream stream)
+        {
+            EphemeralStream base64EncodedStream = new EphemeralStream();
+
+            var base64Transform = new FromBase64Transform();
+            using CryptoStream cryptoStream = new CryptoStream(
+                base64EncodedStream,
+                base64Transform,
+                CryptoStreamMode.Write,
+                true);
+
+            stream.WriteAllTo(cryptoStream);
+            cryptoStream.FlushFinalBlock();
+            base64EncodedStream.Position = 0;
+
+            return base64EncodedStream;
+        }
+
+        /// <summary>
         /// Creates a stream which applies the de-compression methods as given in
         /// the <code>contentEncoding</code>. which is a comma-separated list
         /// of encodings to be applied. All compressions are applied in
@@ -52,6 +77,29 @@ namespace StreamLib
                 .Aggregate(stream, (stream, compressionName) => CreateSingleCompressionStream(stream, compressionName, CompressionMode.Decompress));
 
             return compressionStream;
+        }
+
+        /// <summary>
+        /// Returns a stream with the contents of the base-stream encoded.
+        /// </summary>
+        /// <param name="stream">The stream whose contents will be encoded.</param>
+        /// <returns>A stream of Base64-encoded data.</returns>
+        public static Stream EncodeBase64(this Stream stream)
+        {
+            EphemeralStream base64EncodedStream = new EphemeralStream();
+
+            var base64Transform = new ToBase64Transform();
+            using CryptoStream cryptoStream = new CryptoStream(
+                base64EncodedStream,
+                base64Transform,
+                CryptoStreamMode.Write,
+                true);
+
+            stream.WriteAllTo(cryptoStream);
+            cryptoStream.FlushFinalBlock();
+            base64EncodedStream.Position = 0;
+
+            return base64EncodedStream;
         }
 
         /// <summary>
