@@ -1,26 +1,104 @@
-name: .NET
+
+name: Publish Nuget package
+
+
+# 
+# This script was taken and adapted from:
+# https://github.com/meziantou/SampleNuGet
+# 
+
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
+
+env:
+  DOTNET_UPGRADEASSISTANT_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
+
+defaults:
+  run:
+    shell: pwsh
 
 jobs:
-  build:
 
+  run_tests:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Publish StreamLib
-      uses: brandedoutcast/publish-nuget@v2.5.2
-      with:
-          PROJECT_FILE_PATH: StreamLib/StreamLib.csproj
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Run tests
+        run: dotnet test --configuration Release
+
+  create_nuget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Get all history to allow automatic versioning using MinVer
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
+
+      # Publish the NuGet package as an artifact to the Github registry,
+      # but keep them there for at most 2 days.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          if-no-files-found: error
+          retention-days: 2
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+
+  deploy_nugets:
+    #if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [ run_tests, create_nuget ]
+    steps:
+      # Download the NuGet package created in the previous job
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      # Publish all NuGet packages to NuGet.org
+      # Use --skip-duplicate to prevent errors if a package with the same version already exists.
+      # If you retry a failed workflow, already published packages will be skipped without error.
+      - name: Publish NuGet package
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
+
+  tag_repository:
+    runs-on: ubuntu-latest
+    needs: [ deploy_nugets ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Get all history to allow automatic versioning using MinVer
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      # Configure name and email of the git-user who will tag this commit
+      - name: Set Local Git Config
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+      # Tag commit with version from Nuget package
+      - name: Tag Git Commit
+        run: |
+          foreach($file in (Get-ChildItem "." -Recurse -Include *.csproj)) {
+            $VERSION = Select-String -Path "**/*.csproj" -Pattern '<Version>(.*?)</Version>' | ForEach-Object { $_.Matches.Groups[1].Value }
+            $VERSION_STRING = "V$VERSION"
+            git tag -a $VERSION_STRING -m "Release v$VERSION"
+            git push origin $VERSION_STRING
+          }
