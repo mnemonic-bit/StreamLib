@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using Xunit;
 
-namespace StreamLibTests
+namespace StreamLib.Tests
 {
     public class XmlReaderExtensionsTests
     {

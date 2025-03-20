@@ -1,9 +1,10 @@
-﻿using StreamLib.Implementation;
+﻿using FluentAssertions;
+using StreamLib.Implementation;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
-namespace StreamLibTests
+namespace StreamLib.Tests
 {
     public class MeteringOperationTests
     {
@@ -33,8 +34,8 @@ namespace StreamLibTests
             int result = meteringOperation.MeterOperation(buffer, offset, count);
 
             //Assert
-            Assert.Equal(0, result);
-            Assert.Empty(operationCountParameter);
+            result.Should().Be(0);
+            operationCountParameter.Should().BeEmpty();
         }
 
         [Theory]
@@ -63,14 +64,14 @@ namespace StreamLibTests
             int result = meteringOperation.MeterOperation(buffer, offset, count);
 
             //Assert
-            Assert.Equal(0, result);
-            Assert.Empty(operationCountParameter);
+            result.Should().Be(count);
+            operationCountParameter.Count.Should().Be(count / chunkSize);
         }
 
         [Theory]
         [InlineData(10000, 0, 100, 1000)]
         [InlineData(10000, 0, 500, 1000)]
-        public void MeterOperation_ShouldKeepRateConstant_WhenOperationFunctionHasTheSameSpeedThanTheStartSpeed(int bufferSize, int offset, int count, int chunkSize)
+        public void MeterOperation_WhenOperationFunctionHasTheSameSpeedThanTheStartSpeed_ShouldKeepRateConstant(int bufferSize, int offset, int count, int chunkSize)
         {
             // Arrange
             int baseTicksInterval = 500;
@@ -94,14 +95,14 @@ namespace StreamLibTests
             int result = meteringOperation.MeterOperation(buffer, offset, count);
 
             //Assert
-            Assert.Equal(0, result);
-            Assert.Empty(operationCountParameter);
+            result.Should().Be(count);
+            operationCountParameter.Count.Should().Be(10);
         }
 
         [Theory]
         [InlineData(10000, 0, 100, 1000)]
         [InlineData(10000, 0, 500, 1000)]
-        public void MeterOperation_ShouldIncreaseRate_When(int bufferSize, int offset, int count, int chunkSize)
+        public void MeterOperation_WhenReadingOnlyATenthOfGivenCount_ShouldIncreaseRate(int bufferSize, int offset, int count, int chunkSize)
         {
             // Arrange
             int baseTicksInterval = 500;
@@ -125,8 +126,8 @@ namespace StreamLibTests
             int result = meteringOperation.MeterOperation(buffer, offset, count);
 
             //Assert
-            Assert.Equal(0, result);
-            Assert.Empty(operationCountParameter);
+            result.Should().Be(count);
+            operationCountParameter.Count.Should().Be(10);
         }
 
     }

@@ -89,7 +89,7 @@ namespace StreamLib.Tests
         public void Write_ShouldResizeTheChunk()
         {
             // Arrange
-            byte[] buffer = CreateBuffer(128);
+            byte[] buffer = CreateBuffer(127);
             EphemeralStream ephemeralStream = new EphemeralStream(1, 2);
 
             // Act

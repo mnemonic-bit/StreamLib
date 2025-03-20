@@ -11,6 +11,7 @@ namespace StreamLib.Implementation
     {
 
         private const long TicksPerNanoSecond = TimeSpan.TicksPerMillisecond / 1000;
+        private const long TicksPerSecond = TimeSpan.TicksPerMillisecond * 1000;
 
         private long _ticks = 0;
 
@@ -25,20 +26,21 @@ namespace StreamLib.Implementation
         /// Resets the ticks-cound to the current value of
         /// DateTime.Now.Ticks
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Reset()
         {
             _ticks = DateTime.Now.Ticks;
         }
 
         /// <summary>
-        /// Gets the elapsed time of this timer.
+        /// Gets the elapsed time of this timer as a <see cref="TimeSpan"/>.
         /// </summary>
         internal TimeSpan ElapsedTime
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return TimeSpan.FromTicks(_ticks);
+                return TimeSpan.FromTicks(GetTicksElapsed());
             }
         }
 
@@ -47,7 +49,6 @@ namespace StreamLib.Implementation
         /// the current value of DateTime.Now.Ticks, scaled to
         /// milliseconds.
         /// </summary>
-        /// <returns></returns>
         internal long ElapsedMilliseconds
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,13 +62,25 @@ namespace StreamLib.Implementation
         /// Gets the number of nanoseconds elapsed since the last
         /// reset of this timer.
         /// </summary>
-        /// <returns></returns>
         internal long ElapsedNanoseconds
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return GetTicksElapsed() / TicksPerNanoSecond;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of seconds elapsed since the last reset
+        /// of this timer.
+        /// </summary>
+        internal long ElapsedSeconds
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return GetTicksElapsed() / TicksPerSecond;
             }
         }
 

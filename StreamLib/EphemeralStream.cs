@@ -2,13 +2,12 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace StreamLib
 {
     /// <summary>
-    /// The <code>EphemeralStream is used to provide an in-memory buffer with a
-    /// <code>Stream</code> interface.</code>
+    /// The <code>EphemeralStream</code> is used to provide an in-memory buffer with a
+    /// <code>Stream</code> interface.
     /// </summary>
     /// <remarks>
     /// This stream implementation utilises the shared <code>ArrayPool</code> instance
@@ -37,13 +36,14 @@ namespace StreamLib
         /// Initializes a new stream with the given number of chunks
         /// and the given chunk size.
         /// </summary>
-        /// <param name="numberOfChungs">The initial number of chunks this stream maintains.</param>
-        /// <param name="chunkSize"></param>
-        public EphemeralStream(int numberOfChungs, int chunkSize, bool fixedSize = false)
+        /// <param name="numberOfChunks">The initial number of chunks this stream maintains.</param>
+        /// <param name="chunkSize">The size of the chunks used internally to store the stream content</param>
+        /// <param name="fixedSize">If set to true, this stream cannot expand or shrink its capacity</param>
+        public EphemeralStream(int numberOfChunks, int chunkSize, bool fixedSize = false)
         {
             _chunkSize = chunkSize;
             _fixedSize = fixedSize;
-            _bufferChunks = ArrayPool<byte[]>.Shared.Rent(numberOfChungs);
+            _bufferChunks = ArrayPool<byte[]>.Shared.Rent(numberOfChunks);
             _position = 0;
         }
 

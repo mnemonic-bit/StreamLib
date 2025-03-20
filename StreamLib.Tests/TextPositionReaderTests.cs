@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Xunit;
 
-namespace StreamLibTests
+namespace StreamLib.Tests
 {
     public class TextPositionReaderTests
     {

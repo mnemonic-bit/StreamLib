@@ -4,7 +4,7 @@ using System.Diagnostics;
 using StreamLib.Implementation;
 using Xunit;
 
-namespace StreamLibTests
+namespace StreamLib.Tests
 {
     public class ThrottledOperationTests
     {

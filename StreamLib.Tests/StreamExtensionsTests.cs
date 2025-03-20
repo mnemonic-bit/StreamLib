@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace StreamLibTests
+namespace StreamLib.Tests
 {
     public class StreamExtensionsTests
     {

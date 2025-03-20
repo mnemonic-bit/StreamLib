@@ -21,59 +21,62 @@ namespace StreamLib.Implementation
             _operationFn = operationFn;
             _exitConditionFn = exitConditionFn;
 
-            _timer = new Timer();
             _operationTimer = new Timer();
+            _meteringEventTimer = new Timer();
+            _meteringEventTimer.Reset();
+
+            _speedometer = new Speedometer();
 
             // We assume here that approx. 1k per second is a speed to start with,
             // and set the chunk size accordingly.
-            _chunkSize = intervalLength;
+            _chunkSize = 10;// intervalLength;
         }
 
         /// <summary>
         /// Event handler which receives the on-progress events
         /// created by this component.
         /// </summary>
-        public event Action<TimeSpan, int>? OnProgress;
+        internal event Action<MeteringEventArgs>? OnProgress;
 
         internal int MeterOperation(byte[] buffer, int offset, int count)
         {
-            int totalBytes = 0;
+            int totalBytesSent = 0;
 
-            while (totalBytes < count)
+            while (totalBytesSent < count)
             {
-                int requestedChunkSize = Minimum(_chunkSize, count, count - totalBytes);
+                int requestedChunkSize = Minimum(_chunkSize, count, count - totalBytesSent);
 
                 _operationTimer.Reset();
 
-                int loadedChunkSize = _operationFn(buffer, offset + totalBytes, requestedChunkSize);
+                int loadedChunkSize = _operationFn(buffer, offset + totalBytesSent, requestedChunkSize);
 
                 long elapsedNanoseconds = _operationTimer.ElapsedNanoseconds;
                 AdaptChunkSizeToActualSpeed(elapsedNanoseconds);
 
-                totalBytes += loadedChunkSize;
+                totalBytesSent += loadedChunkSize;
 
-                if (OnProgress != null)
-                {
-                    OnProgress(_timer.ElapsedTime, totalBytes);
-                }
+                SendMeteringEvent(totalBytesSent);
 
-                if (_exitConditionFn(loadedChunkSize, totalBytes))
+                if (_exitConditionFn(loadedChunkSize, requestedChunkSize))
                 {
-                    return totalBytes;
+                    return totalBytesSent;
                 }
             }
 
-            return totalBytes;
+            return totalBytesSent;
         }
 
 
         private readonly Func<byte[], int, int, int> _operationFn;
         private readonly Func<int, int, bool> _exitConditionFn;
 
-        private readonly Timer _timer;
         private readonly Timer _operationTimer;
+        private readonly Timer _meteringEventTimer;
         private readonly int _intervalLengthInNanoseconds;
         private int _chunkSize;
+        private readonly long _meteringEventTimeThreshold = 500000;
+
+        private readonly Speedometer _speedometer;
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,6 +94,24 @@ namespace StreamLib.Implementation
         private int Minimum(params int[] values)
         {
             return values.Min();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SendMeteringEvent(int totalBytesSent)
+        {
+            if (OnProgress == null)
+            {
+                return;
+            }
+
+            if (_meteringEventTimer.ElapsedNanoseconds < _meteringEventTimeThreshold)
+            {
+                return;
+            }
+
+            OnProgress(_speedometer.MeasureSpeed(totalBytesSent));
+
+            _meteringEventTimer.Reset();
         }
 
     }

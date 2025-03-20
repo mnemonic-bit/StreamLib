@@ -1,13 +1,6 @@
 
 name: Publish Nuget package
 
-
-# 
-# This script was taken and adapted from:
-# https://github.com/meziantou/SampleNuGet
-# 
-
-
 on:
   push:
     branches: [ main ]

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-	  <Version>0.10.1</Version>
+	  <Version>0.11.0</Version>
     
     <Title>Useful Stream implementations.</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>

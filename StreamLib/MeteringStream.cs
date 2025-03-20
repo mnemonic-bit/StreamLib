@@ -1,4 +1,5 @@
 ﻿using StreamLib.Implementation;
+using System;
 using System.IO;
 
 namespace StreamLib
@@ -52,6 +53,26 @@ namespace StreamLib
 
         public override long Position { get => _baseStream.Position; set => _baseStream.Position = value; }
 
+        /// <summary>
+        /// Adds the same event listener as read and write listener.
+        /// </summary>
+        /// <param name="eventListener">The listener to be added.</param>
+        public void AddEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            AddReadEventListener(eventListener);
+            AddWriteEventListener(eventListener);
+        }
+
+        public void AddReadEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            _meteringReadOperation.OnProgress += eventListener;
+        }
+
+        public void AddWriteEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            _meteringWriteOperation.OnProgress += eventListener;
+        }
+
         public override void Flush()
         {
             _baseStream.Flush();
@@ -60,6 +81,22 @@ namespace StreamLib
         public override int Read(byte[] buffer, int offset, int count)
         {
             return _meteringReadOperation.MeterOperation(buffer, offset, count);
+        }
+
+        public void RemoveEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            RemovReadEventListener(eventListener);
+            RemoveWriteEventListener(eventListener);
+        }
+
+        public void RemovReadEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            _meteringReadOperation.OnProgress -= eventListener;
+        }
+
+        public void RemoveWriteEventListener(Action<MeteringEventArgs> eventListener)
+        {
+            _meteringWriteOperation.OnProgress -= eventListener;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
