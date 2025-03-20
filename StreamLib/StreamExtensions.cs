@@ -212,6 +212,25 @@ namespace StreamLib
             stream.CopyTo(outputStream);
         }
 
+        /// <summary>
+        /// Writes the whole contents of one stream to another asynchronously.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="outputStream"></param>
+        /// <returns></returns>
+        public static async Task WriteAllToAsync(this Stream stream, Stream outputStream)
+        {
+            byte[] buffer = new byte[DefaultBufferSize];
+
+            int numberOfBytesRead;
+            while ((numberOfBytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await outputStream.WriteAsync(buffer, 0, numberOfBytesRead);
+            }
+
+            await stream.CopyToAsync(outputStream);
+        }
+
 
         /// <summary>
         /// The size of the buffer used when copying anything between streams.
