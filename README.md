@@ -8,6 +8,7 @@ implementation or other kind of data source (e.g. String).
 The Streams this library provides are:
 
 * EphemeralStream: provides a stream which holds all its contents in memory
+* EventStream: provides a stream which posts events on each call to the stream
 * MeteringStream: wraps a stream around any other stream implementation and provides speed measurements of the base stream's read and write operations
 * StringStream: wraps a stream interface around a String instance without additional memory allocation
 * ThrottledStream: wraps a stream around any other Stream implementation and helps throttling the read and write speeds of that base stream
@@ -39,6 +40,13 @@ be set are
 * numberOfChunks: the initial number of chunks the stream is prepared to hold. This is not a fixed number, if the capacity increases above the current limit of this stream, the number of chunks will also be adapted to accomodate the new requirements
 * chunkSize: the size of each chunk of memory which will be allocated just in time when it is needed the first time
 * fixedSize: if set to true, the stream cannot change its size, i.e. that its size is determined by numberOfChunks * chunkSize
+
+
+## EventStream
+
+The EventStream can be used for debugging purposes. It wraps around a base-stream
+and adds events to each call that the user of the EventStream can register to. This
+makes it easy to add logging facilities to specific streams in an application.
 
 
 ## MeteringStream

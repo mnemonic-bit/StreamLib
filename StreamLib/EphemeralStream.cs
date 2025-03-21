@@ -41,7 +41,7 @@ namespace StreamLib
         /// <param name="fixedSize">If set to true, this stream cannot expand or shrink its capacity</param>
         public EphemeralStream(int numberOfChunks, int chunkSize, bool fixedSize = false)
         {
-            _chunkSize = chunkSize;
+            _chunkSize = chunkSize == 0 ? 1 : chunkSize;
             _fixedSize = fixedSize;
             _bufferChunks = ArrayPool<byte[]>.Shared.Rent(numberOfChunks);
             _position = 0;
