@@ -1,7 +1,4 @@
-﻿using StreamLib;
-using System;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using Xunit;
 
 namespace StreamLib.Tests

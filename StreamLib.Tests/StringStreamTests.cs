@@ -1,4 +1,4 @@
-﻿using StreamLib;
+﻿using FluentAssertions;
 using System.Text;
 using Xunit;
 
@@ -8,7 +8,7 @@ namespace StreamLib.Tests
     {
 
         [Fact]
-        public void Read_ShouldReturnCompleteBufferInOneGo_WhenRequestedLengthEqualsLengthinBytes()
+        public void Read_WhenRequestedLengthEqualsLengthinBytes_ShouldReturnCompleteBufferInOneGo()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
@@ -22,12 +22,12 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, lengthInBytes);
 
             // Assert
-            Assert.Equal(lengthInBytes, readByteCount);
-            Assert.Equal(text, encoding.GetString(buffer));
+            readByteCount.Should().Be(lengthInBytes);
+            text.Should().Be(encoding.GetString(buffer));
         }
 
         [Fact]
-        public void Read_ShouldReturnCompleteBufferInOneGo_WhenRequestedLengthIsLargerThanLengthInBytes()
+        public void Read_WhenRequestedLengthIsLargerThanLengthInBytes_ShouldReturnCompleteBufferInOneGo()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
@@ -41,12 +41,13 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, lengthInBytes + 10);
 
             // Assert
-            Assert.Equal(lengthInBytes, readByteCount);
-            Assert.Equal(text, encoding.GetString(buffer));
+            readByteCount.Should().Be(lengthInBytes);
+            stringStream.Position.Should().Be(readByteCount);
+            text.Should().Be(encoding.GetString(buffer));
         }
 
         [Fact]
-        public void Read_ShouldReturnOneCharacter_WhenOnlyOneByteIsRequested()
+        public void Read_WhenOnlyTwoBytesAreRequested_ShouldReturnOneCharacter()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
@@ -63,12 +64,36 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, requestedBytes);
 
             // Assert
-            Assert.Equal(requestedBytes, readByteCount);
-            Assert.Equal(text.Substring(0, 1), encoding.GetString(buffer, 0, requestedBytes));
+            readByteCount.Should().Be(requestedBytes);
+            stringStream.Position.Should().Be(readByteCount);
+            text.Substring(0, 1).Should().Be(encoding.GetString(buffer, 0, requestedBytes));
         }
 
         [Fact]
-        public void Read_ShouldReturnNoCharacter_WhenCountIsZero()
+        public void Read_WhenOnlyTwoBytesAndThenAnotherTwoBytesAreRequested_ShouldReturnOneCharacter()
+        {
+            // Arrange
+            string text = "SOME-TEST-TEXT";
+            Encoding encoding = Encoding.Unicode;
+            int lengthInBytes = encoding.GetByteCount(text);
+            int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
+            int bufferSize = 3;
+            int requestedBytes = 2;
+
+            using StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            byte[] buffer = new byte[bufferSize];
+            int readByteCount = stringStream.Read(buffer, 0, requestedBytes);
+            readByteCount += stringStream.Read(buffer, 0, requestedBytes);
+
+            // Assert
+            readByteCount.Should().Be(2 * requestedBytes);
+            stringStream.Position.Should().Be(readByteCount);
+        }
+
+        [Fact]
+        public void Read_WhenCountIsZero_ShouldReturnNoCharacter()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
@@ -84,11 +109,33 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, 0);
 
             // Assert
-            Assert.Equal(0, readByteCount);
+            readByteCount.Should().Be(0);
+            stringStream.Position.Should().Be(0);
         }
 
         [Fact]
-        public void Read_ShouldReturnAllBytes_WhenCountIsMuchBiggerThanByteRepresentation()
+        public void Read_WhenCountIsOneAndEncodingIsUtf16_ShouldReturnNoCharacter()
+        {
+            // Arrange
+            string text = "SOME-TEST-TEXT";
+            Encoding encoding = Encoding.Unicode;
+            int lengthInBytes = encoding.GetByteCount(text);
+            int maxLengthOfOneChar = encoding.GetMaxByteCount(1);
+            int bufferSize = 3;
+
+            using StringStream stringStream = new StringStream(text, encoding);
+
+            // Act
+            byte[] buffer = new byte[bufferSize];
+            int readByteCount = stringStream.Read(buffer, 0, 1);
+
+            // Assert
+            readByteCount.Should().Be(0);
+            stringStream.Position.Should().Be(0);
+        }
+
+        [Fact]
+        public void Read_WhenCountIsMuchBiggerThanByteRepresentation_ShouldReturnAllBytes()
         {
             // Arrange
             string text = "SOME-TEST-TEXT";
@@ -104,15 +151,16 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, bufferSize);
 
             // Assert
-            Assert.Equal(lengthInBytes, readByteCount);
-            Assert.Equal(text, encoding.GetString(buffer, 0, readByteCount));
+            readByteCount.Should().Be(lengthInBytes);
+            stringStream.Position.Should().Be(readByteCount);
+            text.Should().Be(encoding.GetString(buffer, 0, readByteCount));
         }
 
         [Fact]
-        public void Read_ShouldReturnNoCharacter_WhenNumberOfRequestedBytesIsNotBigEnoughToRepresentCharacter()
+        public void Read_WhenNumberOfRequestedBytesIsNotBigEnoughToRepresentCharacter_ShouldReturnNoCharacter()
         {
             // Arrange
-            string smileyAsString = char.ConvertFromUtf32(0x1F642); 
+            string smileyAsString = char.ConvertFromUtf32(0x1F642);
             string text = $"{smileyAsString}abc";
             Encoding encoding = Encoding.Unicode;
             int lengthInBytes = encoding.GetByteCount(text);
@@ -126,13 +174,14 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, 1);
 
             // Assert
-            Assert.Equal(0, readByteCount);
+            readByteCount.Should().Be(0);
+            stringStream.Position.Should().Be(0);
         }
 
         [Theory]
         [InlineData(0x1F642, 4)] // smiley
         [InlineData(0x03a0, 2)] // PI
-        public void Read_ShouldReturnOneCharacter_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacter(int characterUnicode, int encodedCharacterLength)
+        public void Read_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacter_ShouldReturnOneCharacter(int characterUnicode, int encodedCharacterLength)
         {
             // Arrange
             string smileyAsString = char.ConvertFromUtf32(characterUnicode);
@@ -149,14 +198,15 @@ namespace StreamLib.Tests
             int readByteCount = stringStream.Read(buffer, 0, encodedCharacterLength);
 
             // Assert
-            Assert.Equal(encodedCharacterLength, readByteCount);
-            Assert.Equal($"{smileyAsString}", encoding.GetString(buffer, 0, readByteCount));
+            readByteCount.Should().Be(encodedCharacterLength);
+            stringStream.Position.Should().Be(readByteCount);
+            encoding.GetString(buffer, 0, readByteCount).Should().Be(smileyAsString);
         }
 
         [Theory]
         [InlineData(0x1F642, 4)] // smiley
         [InlineData(0x03a0, 2)] // PI
-        public void Read_ShouldReturnOneCharacterEach_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacterRespectively(int characterUnicode, int encodedCharacterLength)
+        public void Read_WhenNumberOfRequestedBytesIsBigEnoughToRepresentCharacterRespectively_ShouldReturnOneCharacterEach(int characterUnicode, int encodedCharacterLength)
         {
             // Arrange
             string smileyAsString = char.ConvertFromUtf32(characterUnicode);
@@ -174,9 +224,10 @@ namespace StreamLib.Tests
             int readByteCount2 = stringStream.Read(buffer, readByteCount1, encodedCharacterLength);
 
             // Assert
-            Assert.Equal(encodedCharacterLength, readByteCount1);
-            Assert.Equal(encodedCharacterLength, readByteCount2);
-            Assert.Equal(text, encoding.GetString(buffer, 0, readByteCount1 + readByteCount1));
+            readByteCount1.Should().Be(encodedCharacterLength);
+            readByteCount2.Should().Be(encodedCharacterLength);
+            stringStream.Position.Should().Be(readByteCount1 + readByteCount1);
+            text.Should().Be(encoding.GetString(buffer, 0, readByteCount1 + readByteCount1));
         }
 
     }

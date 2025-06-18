@@ -1,11 +1,9 @@
 ﻿using FluentAssertions;
-using StreamLib;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamLib.Tests
 {
